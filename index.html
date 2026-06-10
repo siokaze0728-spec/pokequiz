@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ポケモンクイズ</title>
+
+<style>
+body {
+  font-family: sans-serif;
+  background: #f4f4f4;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 650px;
+  margin: 40px auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+button {
+  width: 100%;
+  margin: 8px 0;
+  padding: 14px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.choice { background: #e0e0e0; }
+.choice:hover { background: #cfcfcf; }
+
+.modeBtn {
+  background: #2196f3;
+  color: white;
+}
+
+#nextBtn {
+  background: #4caf50;
+  color: white;
+  display: none;
+}
+
+#startArea {
+  display: block;
+}
+
+#quizArea {
+  display: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>ポケモンクイズ</h1>
+
+<!-- ■ 難易度選択 -->
+<div id="startArea">
+  <p>難易度を選択</p>
+  <button class="modeBtn" onclick="startGame('easy')">初級（単タイプ）</button>
+  <button class="modeBtn" onclick="startGame('hard')">上級（複合タイプ）</button>
+</div>
+
+<!-- ■ クイズ -->
+<div id="quizArea">
+  <h2 id="question"></h2>
+  <div id="choices"></div>
+  <button id="nextBtn" onclick="next()">次へ</button>
+</div>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+
+// ■ 問題データ（全パターン）
+const data = {
+  easy: [
+    { q:"ほのお→くさの相性は？", c:["ばつぐん","いまひとつ","なし","ランダム"], a:0 },
+    { q:"みず→ほのおの相性は？", c:["ばつぐん","いまひとつ","なし","変化なし"], a:0 },
+    { q:"でんき→じめんの相性は？", c:["なし","ばつぐん","いまひとつ","通常"], a:0 },
+    { q:"くさ→みずの相性は？", c:["ばつぐん","いまひとつ","なし","通常"], a:0 },
+    { q:"こおり→ドラゴンの相性は？", c:["ばつぐん","いまひとつ","なし","通常"], a:0 },
+    { q:"ほのお→こおりの相性は？", c:["ばつぐん","いまひとつ","なし","通常"], a:0 },
+    { q:"じめん→でんきの相性は？", c:["ばつぐん","いまひとつ","なし","通常"], a:0 },
+    { q:"ひこう→くさの相性は？", c:["ばつぐん","いまひとつ","なし","通常"], a:0 }
+  ],
+
+  hard: [
+    { q:"ほのお・ひこうにいわ技は？", c:["4倍ばつぐん","2倍ばつぐん","半減","なし"], a:0 },
+    { q:"みず・じめんにでんき技は？", c:["なし","ばつぐん","半減","通常"], a:0 },
+    { q:"くさ・どくにエスパー技は？", c:["ばつぐん","半減","なし","通常"], a:0 },
+    { q:"いわ・ひこうにみず技は？", c:["4倍ばつぐん","2倍ばつぐん","半減","なし"], a:1 },
+    { q:"はがね・フェアリーにどく技は？", c:["ばつぐん","半減","なし","通常"], a:2 },
+    { q:"ドラゴン・ひこうにこおり技は？", c:["4倍ばつぐん","2倍ばつぐん","半減","なし"], a:1 },
+    { q:"じめん・いわにくさ技は？", c:["ばつぐん","半減","なし","通常"], a:0 },
+    { q:"ほのお・はがねにみず技は？", c:["ばつぐん","半減","なし","通常"], a:0 }
+  ]
+};
+
+let mode = "";
+let list = [];
+let index = 0;
+let score = 0;
+
+// ■ ゲーム開始
+function startGame(m){
+  mode = m;
+
+  // ランダム化
+  list = [...data[m]].sort(() => Math.random() - 0.5);
+
+  index = 0;
+  score = 0;
+
+  document.getElementById("startArea").style.display = "none";
+  document.getElementById("quizArea").style.display = "block";
+  document.getElementById("result").innerHTML = "";
+
+  show();
+}
+
+// ■ 問題表示
+function show(){
+  const q = list[index];
+
+  document.getElementById("question").textContent = q.q;
+
+  const box = document.getElementById("choices");
+  box.innerHTML = "";
+
+  q.c.forEach((text, i) => {
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.textContent = text;
+    btn.onclick = () => select(i);
+    box.appendChild(btn);
+  });
+
+  document.getElementById("nextBtn").style.display = "none";
+}
+
+// ■ 回答
+function select(i){
+  if(i === list[index].a){
+    score++;
+  }
+  document.getElementById("nextBtn").style.display = "block";
+}
+
+// ■ 次へ
+function next(){
+  index++;
+
+  if(index >= list.length){
+    document.getElementById("quizArea").style.display = "none";
+    document.getElementById("result").innerHTML =
+      "<h2>終了</h2><p>スコア：" + score + " / " + list.length + "</p>";
+
+    document.getElementById("startArea").style.display = "block";
+  } else {
+    show();
+  }
+}
+
+</script>
+
+</body>
+</html>
